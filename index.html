@@ -250,9 +250,32 @@
       </div>
     </div>
 
-    <!-- Pestaña Administración (Accesible únicamente mediante #admin en la URL) -->
-    <div id="tab-admin" class="hidden space-y-8">
+   <!-- Pestaña Administración (Protegida por contraseña) -->
+  <div id="tab-admin" class="hidden space-y-8">
+    
+    <!-- Pantalla de Login del Admin -->
+    <div id="adminLoginBox" class="max-w-md mx-auto bg-white rounded-2xl p-8 shadow-xl border border-slate-100 text-center space-y-6 mt-12">
+      <div class="w-16 h-16 bg-navy-900 text-brand-500 rounded-2xl mx-auto flex items-center justify-center text-2xl shadow-lg">
+        <i class="fa-solid fa-lock"></i>
+      </div>
+      <div>
+        <h2 class="font-display font-bold text-navy-900 text-xl">Panel Protegido</h2>
+        <p class="text-xs text-slate-500 mt-1">Ingresa tu contraseña de administración para continuar.</p>
+      </div>
       
+      <div class="space-y-4">
+        <input type="password" id="adminPasswordInput" placeholder="Contraseña..." class="w-full p-3.5 bg-slate-50 border border-slate-200 rounded-xl text-center font-display font-bold text-navy-900 focus:bg-white focus:ring-2 focus:ring-brand-500 focus:outline-none text-lg">
+        <button onclick="verifyAdminPassword()" class="w-full bg-brand-600 hover:bg-brand-700 text-white font-display font-bold py-3.5 rounded-xl shadow-lg shadow-brand-600/20 transition text-sm">
+          Ingresar al Panel
+        </button>
+      </div>
+      <button onclick="switchTab('client')" class="text-xs text-slate-400 hover:text-slate-600 font-medium">
+        &larr; Volver a la página principal
+      </button>
+    </div>
+
+    <!-- Contenido Real del Admin (Oculto hasta poner la clave correcta) -->
+    <div id="adminDashboardContent" class="hidden space-y-8">
       <!-- Top Admin Bar -->
       <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-navy-900 text-white p-6 rounded-2xl shadow-xl">
         <div>
@@ -261,8 +284,8 @@
           </h1>
           <p class="text-xs text-slate-400 mt-1">Configuración de Tasa del Día y Gestión de Solicitudes (Sincronizado en la Nube)</p>
         </div>
-        <button onclick="switchTab('client')" class="bg-slate-800 hover:bg-slate-700 text-slate-200 px-4 py-2 rounded-xl text-xs font-semibold transition flex items-center gap-2 self-start sm:self-auto">
-          <i class="fa-solid fa-arrow-left"></i> Volver a la Vista Cliente
+        <button onclick="logoutAdmin()" class="bg-slate-800 hover:bg-slate-700 text-slate-200 px-4 py-2 rounded-xl text-xs font-semibold transition flex items-center gap-2 self-start sm:self-auto">
+          <i class="fa-solid fa-lock"></i> Cerrar Sesión Admin
         </button>
       </div>
 
@@ -337,8 +360,9 @@
           </table>
         </div>
       </div>
-
     </div>
+
+  </div>
 
   </main>
 
@@ -350,6 +374,47 @@
     </div>
   </footer>
 
+// --- CONTRASEÑA DEL PANEL DE ADMINISTRACIÓN ---
+    const ADMIN_PASSWORD = "pepe8516*"; // Cambia esto por tu contraseña segura
+
+    function verifyAdminPassword() {
+      const inputPass = document.getElementById('adminPasswordInput').value;
+      if (inputPass === ADMIN_PASSWORD) {
+        // Contraseña correcta: guardamos sesión temporal y mostramos el panel
+        sessionStorage.setItem('venenvios_logged', 'true');
+        document.getElementById('adminLoginBox').classList.add('hidden');
+        document.getElementById('adminDashboardContent').classList.remove('hidden');
+        document.getElementById('adminPasswordInput').value = '';
+      } else {
+        alert('Contraseña incorrecta.');
+      }
+    }
+
+    function logoutAdmin() {
+      sessionStorage.removeItem('venenvios_logged');
+      switchTab('client');
+    }
+
+    // Modificar la función checkAdminHash para verificar si ya inició sesión
+    function checkAdminHash() {
+      if (window.location.hash === '#admin') {
+        document.getElementById('tab-client').classList.add('hidden');
+        document.getElementById('tab-admin').classList.remove('hidden');
+        
+        // Comprobar si ya puso la contraseña en esta pestaña
+        if (sessionStorage.getItem('venenvios_logged') === 'true') {
+          document.getElementById('adminLoginBox').classList.add('hidden');
+          document.getElementById('adminDashboardContent').classList.remove('hidden');
+        } else {
+          document.getElementById('adminLoginBox').classList.remove('hidden');
+          document.getElementById('adminDashboardContent').classList.add('hidden');
+        }
+      } else {
+        document.getElementById('tab-admin').classList.add('hidden');
+        document.getElementById('tab-client').classList.remove('hidden');
+      }
+    }
+  
   <script>
     // --- CONFIGURACIÓN DE FIREBASE (¡Pega aquí tus credenciales del Paso 3!) ---
   const firebaseConfig = {
