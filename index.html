@@ -505,7 +505,7 @@
       const newFee = parseInt(document.getElementById('adminFeeInput').value);
       const newMin = parseInt(document.getElementById('adminMinInput').value);
 
-      if (newRate > 0 && newFee >= 0 && newMin > 0) {
+      if (!isNaN(newRate) && newRate > 0 && !isNaN(newFee) && newFee >= 0 && !isNaN(newMin) && newMin > 0) {
         db.collection("config").doc("tasaActual").set({
           rate: newRate,
           fee: newFee,
@@ -514,16 +514,16 @@
         .then(() => {
           const now = new Date();
           document.getElementById('lastUpdatedTag').innerText = `Actualizado en vivo: ${now.toLocaleTimeString()}`;
-          alert('¡Tasa publicada en vivo para todos tus clientes!');
+          alert('¡Tasa publicada en vivo con éxito en Firebase!');
         })
         .catch((error) => {
           alert('Error al guardar en Firebase: ' + error.message);
+          console.error("Firebase save error:", error);
         });
       } else {
-        alert('Por favor verifica que los valores ingresados sean válidos.');
+        alert('Por favor verifica que los valores ingresados sean números válidos.');
       }
     }
-
     function handleFormSubmit(e) {
       e.preventDefault();
 
